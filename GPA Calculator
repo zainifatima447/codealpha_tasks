@@ -1,0 +1,83 @@
+#include <iostream>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+int main() {
+    int n;
+    cout << "Enter the number of courses: ";
+    cin >> n;
+    cin.ignore();
+
+    string courses[100];
+    double grades[100], credits[100];
+
+    double totalCredits = 0, totalGradePoints = 0;
+
+    cout << "\n--- Enter Course Details ---\n";
+    for (int i = 0; i < n; i++) {
+        cout << "\nCourse " << (i + 1) << " name: ";
+        getline(cin, courses[i]);
+
+        cout << "Grade points (0.0 - 4.0): ";
+        cin >> grades[i];
+        while (grades[i] < 0 || grades[i] > 4) {
+            cout << "Invalid! Enter grade between 0.0 and 4.0: ";
+            cin >> grades[i];
+        }
+
+        cout << "Credit hours: ";
+        cin >> credits[i];
+        while (credits[i] <= 0) {
+            cout << "Invalid! Enter credit hours > 0: ";
+            cin >> credits[i];
+        }
+        cin.ignore();
+
+        totalCredits     += credits[i];
+        totalGradePoints += grades[i] * credits[i];
+    }
+
+    double semesterGPA = totalGradePoints / totalCredits;
+
+    // CGPA calculation using previous semester data
+    double prevCredits = 0, prevGradePoints = 0;
+    cout << "\n--- Previous Semester Data (enter 0 if first semester) ---\n";
+    cout << "Previous total credits: ";
+    cin >> prevCredits;
+    cout << "Previous total grade points: ";
+    cin >> prevGradePoints;
+
+    double cumCredits     = totalCredits + prevCredits;
+    double cumGradePoints = totalGradePoints + prevGradePoints;
+    double CGPA           = cumGradePoints / cumCredits;
+
+    // Display results
+    cout << "\n=========================================\n";
+    cout << "        INDIVIDUAL COURSE GRADES\n";
+    cout << "=========================================\n";
+    cout << left << setw(20) << "Course"
+         << setw(12) << "Grade"
+         << setw(10) << "Credits"
+         << "Grade Points\n";
+    cout << "-----------------------------------------\n";
+
+    for (int i = 0; i < n; i++) {
+        cout << left  << setw(20) << courses[i]
+             << setw(12) << fixed << setprecision(2) << grades[i]
+             << setw(10) << credits[i]
+             << grades[i] * credits[i] << "\n";
+    }
+
+    cout << "-----------------------------------------\n";
+    cout << left << setw(20) << "TOTAL"
+         << setw(12) << " "
+         << setw(10) << totalCredits
+         << totalGradePoints << "\n";
+    cout << "=========================================\n";
+    cout << "Semester GPA   : " << fixed << setprecision(2) << semesterGPA << "\n";
+    cout << "Cumulative CGPA: " << fixed << setprecision(2) << CGPA        << "\n";
+    cout << "=========================================\n";
+
+    return 0;
+}
