@@ -1,0 +1,223 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+// Transaction Class
+class Transaction {
+public:
+    string type;
+    double amount;
+
+    Transaction(string t, double a) {
+        type = t;
+        amount = a;
+    }
+
+    void display() {
+        cout << type << " : " << amount << endl;
+    }
+};
+
+// Account Class
+class Account {
+private:
+    int accNumber;
+    double balance;
+    vector<Transaction> history;
+
+public:
+    Account(int num) {
+        accNumber = num;
+        balance = 0;
+    }
+
+    int getAccNumber() {
+        return accNumber;
+    }
+
+    double getBalance() {
+        return balance;
+    }
+
+    void deposit(double amount) {
+        balance += amount;
+        history.push_back(Transaction("Deposit", amount));
+    }
+
+    void withdraw(double amount) {
+        if (amount > balance) {
+            cout << "Insufficient balance!\n";
+            return;
+        }
+        balance -= amount;
+        history.push_back(Transaction("Withdraw", amount));
+    }
+
+    void transfer(Account &to, double amount) {
+        if (amount > balance) {
+            cout << "Insufficient balance!\n";
+            return;
+        }
+        balance -= amount;
+        to.balance += amount;
+
+        history.push_back(Transaction("Transfer Sent", amount));
+        to.history.push_back(Transaction("Transfer Received", amount));
+    }
+
+    void showTransactions() {
+        cout << "\nTransaction History:\n";
+        for (int i = 0; i < history.size(); i++) {
+            history[i].display();
+        }
+    }
+
+    void display() {
+        cout << "Account No: " << accNumber << endl;
+        cout << "Balance: " << balance << endl;
+    }
+};
+
+// Customer Class
+class Customer {
+private:
+    string name;
+    int id;
+    Account account;
+
+public:
+    Customer(string n, int i, int accNum) : account(accNum) {
+        name = n;
+        id = i;
+    }
+
+    int getID() {
+        return id;
+    }
+
+    Account& getAccount() {
+        return account;
+    }
+
+    void display() {
+        cout << "\nCustomer ID: " << id << endl;
+        cout << "Name: " << name << endl;
+        account.display();
+    }
+};
+
+// Main System
+int main() {
+    vector<Customer> customers;
+
+    int choice;
+
+    do {
+        cout << "\n===== BANKING SYSTEM =====\n";
+        cout << "1. Add Customer\n";
+        cout << "2. Deposit\n";
+        cout << "3. Withdraw\n";
+        cout << "4. Transfer\n";
+        cout << "5. Show Details\n";
+        cout << "6. Show Transactions\n";
+        cout << "0. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            string name;
+            int id, acc;
+
+            cout << "Enter Name: ";
+            cin >> name;
+            cout << "Enter Customer ID: ";
+            cin >> id;
+            cout << "Enter Account Number: ";
+            cin >> acc;
+
+            customers.push_back(Customer(name, id, acc));
+            cout << "Customer Added!\n";
+        }
+
+        else if (choice == 2) {
+            int id;
+            double amt;
+            cout << "Enter Customer ID: ";
+            cin >> id;
+
+            for (int i = 0; i < customers.size(); i++) {
+                if (customers[i].getID() == id) {
+                    cout << "Enter amount: ";
+                    cin >> amt;
+                    customers[i].getAccount().deposit(amt);
+                }
+            }
+        }
+
+        else if (choice == 3) {
+            int id;
+            double amt;
+            cout << "Enter Customer ID: ";
+            cin >> id;
+
+            for (int i = 0; i < customers.size(); i++) {
+                if (customers[i].getID() == id) {
+                    cout << "Enter amount: ";
+                    cin >> amt;
+                    customers[i].getAccount().withdraw(amt);
+                }
+            }
+        }
+
+        else if (choice == 4) {
+            int fromID, toID;
+            double amt;
+
+            cout << "From Customer ID: ";
+            cin >> fromID;
+            cout << "To Customer ID: ";
+            cin >> toID;
+            cout << "Amount: ";
+            cin >> amt;
+
+            Account *from = NULL;
+            Account *to = NULL;
+
+            for (int i = 0; i < customers.size(); i++) {
+                if (customers[i].getID() == fromID)
+                    from = &customers[i].getAccount();
+                if (customers[i].getID() == toID)
+                    to = &customers[i].getAccount();
+            }
+
+            if (from != NULL && to != NULL) {
+                from->transfer(*to, amt);
+            } else {
+                cout << "Invalid IDs!\n";
+            }
+        }
+
+        else if (choice == 5) {
+            for (int i = 0; i < customers.size(); i++) {
+                customers[i].display();
+            }
+        }
+
+        else if (choice == 6) {
+            int id;
+            cout << "Enter Customer ID: ";
+            cin >> id;
+
+            for (int i = 0; i < customers.size(); i++) {
+                if (customers[i].getID() == id) {
+                    customers[i].getAccount().showTransactions();
+                }
+            }
+        }
+
+    } while (choice != 0);
+
+    return 0;
+}
